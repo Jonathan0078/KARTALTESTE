@@ -1,0 +1,32 @@
+{
+  "name": "Website Scraper Real",
+  "short_name": "WebScraper",
+  "description": "Baixe sites completos com HTML, CSS, JS e imagens",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1b26",
+  "theme_color": "#7aa2f7",
+  "orientation": "portrait-primary",
+  "categories": ["utilities", "productivity"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiMxYTFiMjYiLz4KPHBhdGggZD0iTTQ4IDQ4SDk2VjE0NEg0OFY0OFoiIGZpbGw9IiM3YWEyZjciLz4KPHA+dGggZD0iTTExMiA0OEgxNDRWMTQ0SDExMlY0OFoiIGZpbGw9IiM5ZWNlNmEiLz4KPHA+dGggZD0iTTQ4IDE2MEgxNDRWMTc2SDQ4VjE2MFoiIGZpbGw9IiNmZmI5M2QiLz4KPC9zdmc+",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iNjQiIGZpbGw9IiMxYTFiMjYiLz4KPHA+dGggZD0iTTEyOCAxMjhIMjU2VjM4NEgxMjhWMTI4WiIgZmlsbD0iIzdhYTJmNyIvPgo8cGF0aCBkPSJNMjk2IDEyOEgzODRWMzg0SDI5NlYxMjhaIiBmaWxsPSIjOWVjZTZhIi8+CjxwYXRoIGQ9Ik0xMjggNDI2SDM4NFY0NjhIMTI4VjQyNloiIGZpbGw9IiNmZmI5M2QiLz4KPC9zdmc+",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjU2OCIgdmlld0JveD0iMCAwIDMyMCA1NjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iNTY4IiBmaWxsPSIjMWExYjI2Ii8+Cjx0ZXh0IHg9IjE2MCIgeT0iMjg0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjYTliMWQ2IiBmb250LWZhbWlseT0ibW9ub3NwYWNlIiBmb250LXNpemU9IjE0Ij5XZWJzaXRlIFNjcmFwZXI8L3RleHQ+CjwvdGRnPg==",
+      "sizes": "320x568",
+      "type": "image/svg+xml",
+      "form_factor": "narrow"
+    }
+  ]
+}
+

@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Scraper Real</title>
+    <meta name="description" content="Baixe sites completos com HTML, CSS, JS e imagens">
+    <meta name="theme-color" content="#7aa2f7">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNCIgZmlsbD0iIzFhMWIyNiIvPgo8cGF0aCBkPSJNOCA4SDE2VjI0SDhWOFoiIGZpbGw9IiM3YWEyZjciLz4KPHA+dGggZD0iTTE4IDhIMjRWMjRIMThWOFoiIGZpbGw9IiM5ZWNlNmEiLz4KPHA+dGggZD0iTTggMjZIMjRWMjhIOFYyNloiIGZpbGw9IiNmZmI5M2QiLz4KPC9zdmc+">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fira Code', monospace;
+            background-color: #1a1b26;
+            color: #a9b1d6;
+        }
+        .terminal-window {
+            min-height: 50vh;
+            max-height: 70vh;
+            background-color: rgba(20, 21, 31, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid #3b4261;
+        }
+        .terminal-output {
+            max-height: 40vh;
+            overflow-y: auto;
+        }
+        .terminal-output::-webkit-scrollbar {
+            width: 8px;
+        }
+        .terminal-output::-webkit-scrollbar-track {
+            background: #1a1b26;
+        }
+        .terminal-output::-webkit-scrollbar-thumb {
+            background-color: #3b4261;
+            border-radius: 4px;
+        }
+        .prompt::after {
+            content: '█';
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+        .form-input {
+            background-color: #24283b;
+            border: 1px solid #3b4261;
+            color: #a9b1d6;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #7aa2f7;
+            box-shadow: 0 0 0 2px rgba(122, 162, 247, 0.5);
+        }
+        .btn-primary {
+            background-color: #7aa2f7;
+            color: #1a1b26;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #9abdf5;
+        }
+        .btn-primary:disabled {
+            background-color: #414868;
+            color: #787c99;
+            cursor: not-allowed;
+        }
+        .btn-download {
+            background-color: #9ece6a;
+            color: #1a1b26;
+            transition: background-color 0.3s ease;
+        }
+        .btn-download:hover {
+            background-color: #b9f27c;
+        }
+        .btn-download:disabled {
+            background-color: #414868;
+            color: #787c99;
+            cursor: not-allowed;
+        }
+        .btn-install {
+            background-color: #f7768e;
+            color: #1a1b26;
+            transition: background-color 0.3s ease;
+        }
+        .btn-install:hover {
+            background-color: #ff9cad;
+        }
+        .progress-bar {
+            background-color: #24283b;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background-color: #7aa2f7;
+            height: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .terminal-window {
+                min-height: 60vh;
+                max-height: 80vh;
+            }
+            .terminal-output {
+                max-height: 50vh;
+            }
+            body {
+                padding: 8px;
+            }
+            .terminal-header p {
+                font-size: 12px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .terminal-window {
+                padding: 16px;
+            }
+            .form-input {
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+        }
+
+        .install-prompt {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #7aa2f7;
+            color: #1a1b26;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+        }
+
+        .config-section {
+            background-color: #24283b;
+            border: 1px solid #3b4261;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-2 sm:p-4">
+    <!-- Install prompt -->
+    <div id="install-prompt" class="install-prompt">
+        <div class="flex items-center gap-2">
+            <span>📱 Instalar como aplicativo?</span>
+            <button id="install-btn" class="btn-install px-3 py-1 rounded text-xs">Instalar</button>
+            <button id="dismiss-btn" class="text-xs opacity-75 hover:opacity-100">Dispensar</button>
+        </div>
+    </div>
+
+    <div class="w-full max-w-4xl mx-auto">
+        <div class="bg-[#101118] rounded-t-lg p-3 flex items-center shadow-2xl">
+            <div class="flex space-x-2">
+                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+            </div>
+            <p class="text-center text-xs sm:text-sm text-gray-400 flex-grow">~/web-scraper-real</p>
+        </div>
+        <div class="terminal-window rounded-b-lg p-4 sm:p-6 shadow-2xl">
+            <!-- Configuração da API -->
+            <div class="config-section">
+                <h3 class="text-sm font-bold text-[#f7768e] mb-3">⚙️ Configuração da API</h3>
+                <div class="grid grid-cols-1 gap-3">
+                    <div>
+                        <label for="api-url" class="block text-xs font-medium mb-1 text-[#89ddff]">URL da API Backend:</label>
+                        <input type="url" id="api-url" class="form-input w-full p-2 rounded-md text-xs" 
+                               placeholder="https://seuusuario.pythonanywhere.com/api/scraper"
+                               value="">
+                    </div>
+                    <div>
+                        <label for="api-key" class="block text-xs font-medium mb-1 text-[#89ddff]">API Key (opcional):</label>
+                        <input type="password" id="api-key" class="form-input w-full p-2 rounded-md text-xs" 
+                               placeholder="Sua chave de API (se configurada)">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulário de Inputs -->
+            <div id="form-container" class="mb-6">
+                <div class="grid grid-cols-1 gap-4">
+                    <div>
+                        <label for="url-input" class="block text-sm font-medium mb-2 text-[#89ddff]">URL para Baixar:</label>
+                        <input type="url" id="url-input" class="form-input w-full p-2 rounded-md text-sm" placeholder="https://example.com">
+                    </div>
+                    <div>
+                        <label for="dir-input" class="block text-sm font-medium mb-2 text-[#c3e88d]">Nome da Pasta:</label>
+                        <input type="text" id="dir-input" class="form-input w-full p-2 rounded-md text-sm" value="meu-site" placeholder="nome-da-pasta">
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-2 mt-4">
+                    <button id="scrape-button" class="btn-primary flex-1 py-2 px-4 rounded-md font-bold text-sm">
+                        Executar Scraper Real
+                    </button>
+                    <button id="download-button" class="btn-download flex-1 py-2 px-4 rounded-md font-bold text-sm" disabled>
+                        Baixar ZIP
+                    </button>
+                </div>
+                <!-- Progress bar -->
+                <div id="progress-container" class="mt-4 hidden">
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <p id="progress-text" class="text-xs text-gray-400 mt-1">0% concluído</p>
+                </div>
+            </div>
+
+            <!-- Saída do Terminal -->
+            <div id="terminal-output" class="terminal-output w-full text-xs sm:text-sm leading-relaxed">
+                <p><span class="text-[#82aaff]">user@machine:</span><span class="text-[#c3e88d]">~/web-scraper-real$</span> Web Scraper Real - Baixa sites completos!</p>
+                <p>Configure a URL da API backend acima e insira a URL do site que deseja baixar.</p>
+                <p>• Este scraper baixa arquivos reais: HTML, CSS, JS e imagens!</p>
+                <p>• Funciona com backend hospedado no PythonAnywhere</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const urlInput = document.getElementById('url-input');
+        const dirInput = document.getElementById('dir-input');
+        const apiUrlInput = document.getElementById('api-url');
+        const apiKeyInput = document.getElementById('api-key');
+        const scrapeButton = document.getElementById('scrape-button');
+        const downloadButton = document.getElementById('download-button');
+        const terminalOutput = document.getElementById('terminal-output');
+        const progressContainer = document.getElementById('progress-container');
+        const progressFill = document.getElementById('progress-fill');
+        const progressText = document.getElementById('progress-text');
+        const installPrompt = document.getElementById('install-prompt');
+        const installBtn = document.getElementById('install-btn');
+        const dismissBtn = document.getElementById('dismiss-btn');
+        
+        let currentSessionId = null;
+        let isProcessing = false;
+        let deferredPrompt;
+        let progressInterval = null;
+
+        const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+        // Carregar configurações salvas
+        window.addEventListener('load', () => {
+            const savedApiUrl = localStorage.getItem('apiUrl');
+            const savedApiKey = localStorage.getItem('apiKey');
+            
+            if (savedApiUrl) {
+                apiUrlInput.value = savedApiUrl;
+            }
+            if (savedApiKey) {
+                apiKeyInput.value = savedApiKey;
+            }
+        });
+
+        // Salvar configurações quando alteradas
+        apiUrlInput.addEventListener('change', () => {
+            localStorage.setItem('apiUrl', apiUrlInput.value);
+        });
+
+        apiKeyInput.addEventListener('change', () => {
+            localStorage.setItem('apiKey', apiKeyInput.value);
+        });
+
+        // PWA Installation
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installPrompt.style.display = 'block';
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    logToTerminal('<span class="text-green-400">📱 App instalado com sucesso!</span>');
+                }
+                deferredPrompt = null;
+                installPrompt.style.display = 'none';
+            }
+        });
+
+        dismissBtn.addEventListener('click', () => {
+            installPrompt.style.display = 'none';
+        });
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    console.log('SW registered:', registration);
+                })
+                .catch(error => {
+                    console.log('SW registration failed:', error);
+                });
+        }
+
+        function updateProgress(current, total, message = '') {
+            const percentage = Math.round((current / total) * 100);
+            progressFill.style.width = `${percentage}%`;
+            progressText.textContent = message || `${percentage}% concluído (${current}/${total} arquivos)`;
+        }
+
+        function logToTerminal(message, isCommand = false) {
+            const p = document.createElement('p');
+            if (isCommand) {
+                p.innerHTML = `<span class="text-[#82aaff]">user@machine:</span><span class="text-[#c3e88d]">~/web-scraper-real$</span> ${message}`;
+            } else {
+                p.innerHTML = message;
+            }
+            terminalOutput.appendChild(p);
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        }
+
+        function addPrompt() {
+            const p = document.createElement('p');
+            p.innerHTML = `<span class="text-[#82aaff]">user@machine:</span><span class="text-[#c3e88d]">~/web-scraper-real$</span> <span class="prompt"></span>`;
+            terminalOutput.appendChild(p);
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        }
+
+        async function makeApiRequest(endpoint, options = {}) {
+            const apiUrl = apiUrlInput.value.trim();
+            if (!apiUrl) {
+                throw new Error('URL da API não configurada');
+            }
+
+            const apiKey = apiKeyInput.value.trim();
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+
+            if (apiKey) {
+                headers['Authorization'] = `Bearer ${apiKey}`;
+            }
+
+            const response = await fetch(`${apiUrl}${endpoint}`, {
+                ...options,
+                headers
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erro da API: ${response.status} ${response.statusText}`);
+            }
+
+            return response.json();
+        }
+
+        async function checkProgress(sessionId) {
+            try {
+                const data = await makeApiRequest(`/progress/${sessionId}`);
+                
+                updateProgress(data.current_file || 0, data.total_files || 1, data.message || '');
+                
+                if (data.status === 'concluido') {
+                    logToTerminal(`<span class="text-green-400 font-bold">🎉 SCRAPING CONCLUÍDO!</span>`);
+                    logToTerminal(`📊 Estatísticas:`);
+                    logToTerminal(`   • Total de arquivos: ${data.scraped_files}`);
+                    logToTerminal(`   • Progresso: ${data.progress}%`);
+                    logToTerminal('<span class="text-cyan-400">💾 Clique em "Baixar ZIP" para obter os arquivos!</span>');
+                    
+                    downloadButton.disabled = false;
+                    progressContainer.classList.add('hidden');
+                    clearInterval(progressInterval);
+                    isProcessing = false;
+                    scrapeButton.disabled = false;
+                    addPrompt();
+                } else if (data.status === 'erro') {
+                    logToTerminal(`<span class="text-red-400">❌ Erro: ${data.message}</span>`);
+                    progressContainer.classList.add('hidden');
+                    clearInterval(progressInterval);
+                    isProcessing = false;
+                    scrapeButton.disabled = false;
+                    addPrompt();
+                }
+            } catch (error) {
+                logToTerminal(`<span class="text-red-400">❌ Erro ao verificar progresso: ${error.message}</span>`);
+                clearInterval(progressInterval);
+                isProcessing = false;
+                scrapeButton.disabled = false;
+                progressContainer.classList.add('hidden');
+                addPrompt();
+            }
+        }
+
+        scrapeButton.addEventListener('click', async () => {
+            const url = urlInput.value.trim();
+            const directory = dirInput.value.trim();
+            const apiUrl = apiUrlInput.value.trim();
+
+            if (!url || !directory) {
+                logToTerminal('<span class="text-red-400">❌ ERRO: URL e Nome da Pasta são obrigatórios.</span>');
+                return;
+            }
+
+            if (!apiUrl) {
+                logToTerminal('<span class="text-red-400">❌ ERRO: Configure a URL da API backend.</span>');
+                return;
+            }
+
+            if (isProcessing) {
+                logToTerminal('<span class="text-yellow-400">⚠️ Scraping já em andamento...</span>');
+                return;
+            }
+
+            isProcessing = true;
+            scrapeButton.disabled = true;
+            downloadButton.disabled = true;
+            currentSessionId = null;
+            terminalOutput.innerHTML = '';
+            progressContainer.classList.remove('hidden');
+            updateProgress(0, 1, 'Iniciando...');
+
+            logToTerminal('🚀 Iniciando scraping real de:', true);
+            logToTerminal(`<a href="${url}" target="_blank" class="text-blue-400 underline">${url}</a>`);
+            await sleep(1000);
+
+            logToTerminal(`📁 Pasta de destino: <span class="text-yellow-300">${directory}</span>`);
+            logToTerminal(`🌐 API Backend: <span class="text-blue-300">${apiUrl}</span>`);
+            await sleep(500);
+
+            try {
+                // Iniciar scraping
+                logToTerminal('📡 Enviando requisição para o backend...');
+                const response = await makeApiRequest('/start', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        url: url,
+                        folder_name: directory
+                    })
+                });
+
+                if (response.status === 'success') {
+                    currentSessionId = response.session_id;
+                    logToTerminal(`✅ Scraping iniciado! ID da sessão: ${currentSessionId}`);
+                    logToTerminal('📊 Monitorando progresso...');
+                    
+                    // Iniciar monitoramento do progresso
+                    progressInterval = setInterval(() => {
+                        if (currentSessionId) {
+                            checkProgress(currentSessionId);
+                        }
+                    }, 2000);
+                    
+                } else {
+                    throw new Error(response.message || 'Erro desconhecido');
+                }
+
+            } catch (error) {
+                logToTerminal(`<span class="text-red-400">❌ Erro: ${error.message}</span>`);
+                progressContainer.classList.add('hidden');
+                isProcessing = false;
+                scrapeButton.disabled = false;
+                addPrompt();
+            }
+        });
+
+        downloadButton.addEventListener('click', async () => {
+            if (!currentSessionId) {
+                logToTerminal('<span class="text-red-400">❌ Nenhuma sessão ativa para download.</span>');
+                return;
+            }
+            
+            logToTerminal('📦 Preparando download do ZIP...', true);
+            
+            try {
+                const apiUrl = apiUrlInput.value.trim();
+                const apiKey = apiKeyInput.value.trim();
+                
+                const headers = {};
+                if (apiKey) {
+                    headers['Authorization'] = `Bearer ${apiKey}`;
+                }
+                
+                const response = await fetch(`${apiUrl}/download/${currentSessionId}`, {
+                    headers
+                });
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${dirInput.value || 'website'}.zip`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    logToTerminal('<span class="text-green-400">✅ Download iniciado!</span>');
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Erro no download');
+                }
+            } catch (error) {
+                logToTerminal(`<span class="text-red-400">❌ Erro no download: ${error.message}</span>`);
+            }
+            
+            addPrompt();
+        });
+
+        // Melhorar responsividade em mobile
+        window.addEventListener('resize', () => {
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        });
+
+        // Detectar se já está instalado
+        window.addEventListener('appinstalled', () => {
+            logToTerminal('<span class="text-green-400">📱 App instalado com sucesso!</span>');
+            installPrompt.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
+
