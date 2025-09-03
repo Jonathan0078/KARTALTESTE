@@ -153,7 +153,6 @@
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-2 sm:p-4">
-    <!-- Install prompt -->
     <div id="install-prompt" class="install-prompt">
         <div class="flex items-center gap-2">
             <span>📱 Instalar como aplicativo?</span>
@@ -172,7 +171,6 @@
             <p class="text-center text-xs sm:text-sm text-gray-400 flex-grow">~/web-scraper-real</p>
         </div>
         <div class="terminal-window rounded-b-lg p-4 sm:p-6 shadow-2xl">
-            <!-- Configuração da API -->
             <div class="config-section">
                 <h3 class="text-sm font-bold text-[#f7768e] mb-3">⚙️ Configuração da API</h3>
                 <div class="grid grid-cols-1 gap-3">
@@ -190,7 +188,6 @@
                 </div>
             </div>
 
-            <!-- Formulário de Inputs -->
             <div id="form-container" class="mb-6">
                 <div class="grid grid-cols-1 gap-4">
                     <div>
@@ -210,7 +207,6 @@
                         Baixar ZIP
                     </button>
                 </div>
-                <!-- Progress bar -->
                 <div id="progress-container" class="mt-4 hidden">
                     <div class="progress-bar">
                         <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
@@ -219,7 +215,6 @@
                 </div>
             </div>
 
-            <!-- Saída do Terminal -->
             <div id="terminal-output" class="terminal-output w-full text-xs sm:text-sm leading-relaxed">
                 <p><span class="text-[#82aaff]">user@machine:</span><span class="text-[#c3e88d]">~/web-scraper-real$</span> Web Scraper Real - Baixa sites completos!</p>
                 <p>Configure a URL da API backend acima e insira a URL do site que deseja baixar.</p>
@@ -228,6 +223,33 @@
             </div>
         </div>
     </div>
+    
+    <script>
+    // Função de proxy CORS para contornar restrições
+    async function corsProxy(url, options = {}) {
+      // URL do serviço de proxy CORS gratuito
+      const proxyUrl = 'https://corsproxy.io/?';
+      
+      try {
+        const response = await fetch(proxyUrl + encodeURIComponent(url ), options);
+        return response;
+      } catch (error) {
+        console.error('Erro no proxy CORS:', error);
+        throw error;
+      }
+    }
+    
+    // Substitui a função fetch original
+    const originalFetch = window.fetch;
+    window.fetch = function(url, options = {}) {
+      // Se for uma URL para o PythonAnywhere, usa o proxy
+      if (url.includes('pythonanywhere.com')) {
+        return corsProxy(url, options);
+      }
+      // Caso contrário, usa o fetch normal
+      return originalFetch(url, options);
+    };
+    </script>
 
     <script>
         const urlInput = document.getElementById('url-input');
@@ -525,4 +547,3 @@
     </script>
 </body>
 </html>
-
