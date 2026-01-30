@@ -585,3 +585,252 @@ document.addEventListener('DOMContentLoaded', () => {
         lastScrollTop = currentScroll <= 0 ? 0 : currentScroll; // Para Safari
     }, false);
 });
+
+// ========== FUNÇÕES DO PAINEL ADM ==========
+
+// Abrir modal de login do ADM
+function openAdmLogin() {
+    document.getElementById('admLoginModal').classList.add('show');
+    document.getElementById('admPassword').focus();
+}
+
+// Fechar modal de login do ADM
+function closeAdmLogin() {
+    document.getElementById('admLoginModal').classList.remove('show');
+    document.getElementById('admPassword').value = '';
+    document.getElementById('admErrorMsg').style.display = 'none';
+}
+
+// Autenticar ADM
+function authenticateAdm() {
+    const password = document.getElementById('admPassword').value;
+    const errorMsg = document.getElementById('admErrorMsg');
+
+    if (password === '123') {
+        closeAdmLogin();
+        openAdmPanel();
+    } else {
+        errorMsg.textContent = 'Senha incorreta! Tente novamente.';
+        errorMsg.style.display = 'block';
+        document.getElementById('admPassword').value = '';
+        document.getElementById('admPassword').focus();
+    }
+}
+
+// Abrir painel do ADM
+function openAdmPanel() {
+    document.getElementById('admPanelModal').classList.add('show');
+    document.getElementById('admOverlay').style.display = 'block';
+    renderizarProdutosAdm();
+}
+
+// Fechar painel do ADM
+function closeAdmPanel() {
+    document.getElementById('admPanelModal').classList.remove('show');
+    document.getElementById('admOverlay').style.display = 'none';
+}
+
+// Trocar aba do painel ADM
+function switchAdmTab(tabName) {
+    if (tabName === 'sair') {
+        closeAdmPanel();
+        return;
+    }
+
+    // Remover classe active de todas as abas
+    document.querySelectorAll('.adm-tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.adm-tab-content').forEach(content => content.classList.remove('active'));
+
+    // Adicionar classe active à aba clicada
+    event.target.closest('.adm-tab-btn').classList.add('active');
+
+    let tabId;
+    switch(tabName) {
+        case 'produtos':
+            tabId = 'produtosTab';
+            renderizarProdutosAdm();
+            break;
+        case 'adicionar':
+            tabId = 'adicionarTab';
+            break;
+        case 'precos':
+            tabId = 'precosTab';
+            renderizarPrecosAdm();
+            break;
+    }
+
+    if (tabId) {
+        document.getElementById(tabId).classList.add('active');
+    }
+}
+
+// Renderizar produtos para o ADM
+function renderizarProdutosAdm() {
+    const lista = document.getElementById('admProdutosList');
+    lista.innerHTML = '';
+
+    produtos.forEach(produto => {
+        const item = document.createElement('div');
+        item.className = 'adm-produto-item';
+        item.innerHTML = `
+            <div class="adm-produto-info">
+                <h4>${produto.nome}</h4>
+                <p><strong>Marca:</strong> ${produto.marca}</p>
+                <p><strong>Categoria:</strong> ${produto.categoria}</p>
+                <p><strong>Preço:</strong> R$ ${produto.preco.toFixed(2)}</p>
+            </div>
+            <div class="adm-produto-actions">
+                <button class="adm-btn-edit" onclick="editarProdutoAdm(${produto.id})">
+                    <i class="fas fa-edit"></i> Editar
+                </button>
+                <button class="adm-btn-delete" onclick="deletarProdutoAdm(${produto.id})">
+                    <i class="fas fa-trash"></i> Deletar
+                </button>
+            </div>
+        `;
+        lista.appendChild(item);
+    });
+}
+
+// Filtrar produtos no ADM
+function filtrarProdutosAdm() {
+    const search = document.getElementById('admSearchProduto').value.toLowerCase();
+    const marca = document.getElementById('admFilterMarca').value;
+
+    document.querySelectorAll('.adm-produto-item').forEach(item => {
+        const texto = item.textContent.toLowerCase();
+        const itemMarca = item.textContent.includes(marca) || marca === '';
+        
+        if (texto.includes(search) && itemMarca) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+// Editar produto
+function editarProdutoAdm(produtoId) {
+    const produto = produtos.find(p => p.id === produtoId);
+    if (!produto) return;
+
+    const novoPreco = prompt(`Editar Preço de "${produto.nome}"\n\nPreço atual: R$ ${produto.preco.toFixed(2)}\nDigite o novo preço:`, produto.preco);
+    
+    if (novoPreco !== null && novoPreco !== '') {
+        const preco = parseFloat(novoPreco);
+        if (!isNaN(preco) && preco >= 0) {
+            produto.preco = preco;
+            renderizarProdutosAdm();
+            mostrarNotificacao(`Produto "${produto.nome}" atualizado com sucesso!`);
+        } else {
+            alert('Preço inválido!');
+        }
+    }
+}
+
+// Deletar produto
+function deletarProdutoAdm(produtoId) {
+    const produto = produtos.find(p => p.id === produtoId);
+    if (!produto) return;
+
+    if (confirm(`Tem certeza que deseja deletar "${produto.nome}"?\n\nEsta ação não pode ser desfeita!`)) {
+        const index = produtos.findIndex(p => p.id === produtoId);
+        produtos.splice(index, 1);
+        renderizarProdutosAdm();
+        mostrarNotificacao(`Produto "${produto.nome}" deletado com sucesso!`);
+    }
+}
+
+// Adicionar novo produto
+function adicionarProdutoAdm(event) {
+    event.preventDefault();
+
+    const marca = document.getElementById('novaMarca').value;
+    const nome = document.getElementById('novoNome').value;
+    const categoria = document.getElementById('novaCategoria').value;
+    const preco = parseFloat(document.getElementById('novoPreco').value);
+
+    if (!marca || !nome || !categoria || isNaN(preco) || preco < 0) {
+        alert('Por favor, preenchaa todos os campos com valores válidos!');
+        return;
+    }
+
+    const novoId = Math.max(...produtos.map(p => p.id), 0) + 1;
+
+    const novoProduto = {
+        id: novoId,
+        marca: marca,
+        nome: nome,
+        preco: preco,
+        categoria: categoria
+    };
+
+    produtos.push(novoProduto);
+
+    // Limpar formulário
+    document.getElementById('novaMarca').value = '';
+    document.getElementById('novoNome').value = '';
+    document.getElementById('novaCategoria').value = '';
+    document.getElementById('novoPreco').value = '';
+
+    mostrarNotificacao(`Produto "${nome}" adicionado com sucesso!`);
+    renderizarProdutos();
+}
+
+// Renderizar preços para edição
+function renderizarPrecosAdm() {
+    const lista = document.getElementById('admPrecosList');
+    lista.innerHTML = '';
+
+    produtos.forEach(produto => {
+        const item = document.createElement('div');
+        item.className = 'adm-preco-item';
+        item.innerHTML = `
+            <div class="adm-preco-info">
+                <h4>${produto.nome}</h4>
+                <p><strong>Marca:</strong> ${produto.marca} | <strong>Categoria:</strong> ${produto.categoria}</p>
+            </div>
+            <div class="adm-preco-input-group">
+                <input type="number" id="preco-${produto.id}" value="${produto.preco}" step="0.01" min="0" placeholder="Novo preço">
+                <button onclick="salvarNovoPreco(${produto.id})">
+                    <i class="fas fa-save"></i> Salvar
+                </button>
+            </div>
+        `;
+        lista.appendChild(item);
+    });
+}
+
+// Filtrar produtos na aba de preços
+function filtrarProdutosPreco() {
+    const search = document.getElementById('admSearchPreco').value.toLowerCase();
+
+    document.querySelectorAll('.adm-preco-item').forEach(item => {
+        const texto = item.textContent.toLowerCase();
+        
+        if (texto.includes(search)) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+// Salvar novo preço
+function salvarNovoPreco(produtoId) {
+    const novoPreco = parseFloat(document.getElementById(`preco-${produtoId}`).value);
+    const produto = produtos.find(p => p.id === produtoId);
+
+    if (!produto) return;
+
+    if (isNaN(novoPreco) || novoPreco < 0) {
+        alert('Preço inválido!');
+        return;
+    }
+
+    const precoAnterior = produto.preco;
+    produto.preco = novoPreco;
+
+    mostrarNotificacao(`Preço de "${produto.nome}" alterado de R$ ${precoAnterior.toFixed(2)} para R$ ${novoPreco.toFixed(2)}!`);
+    renderizarProdutos();
+}

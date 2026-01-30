@@ -19,6 +19,9 @@
                 </div>
             </div>
             <nav class="nav">
+                <button class="adm-btn" onclick="openAdmLogin()" title="Painel do Administrador">
+                    <i class="fas fa-cog"></i>
+                </button>
                 <button class="cart-btn" onclick="toggleCart()">
                     <i class="fas fa-shopping-cart"></i>
                     <span class="cart-count">0</span>
@@ -124,6 +127,126 @@
             </button>
         </div>
     </div>
+
+    <!-- OVERLAY -->
+    <div class="overlay" id="overlay" onclick="toggleCart()"></div>
+
+    <!-- MODAL DE LOGIN ADM -->
+    <div class="adm-login-modal" id="admLoginModal">
+        <div class="adm-login-container">
+            <div class="adm-login-header">
+                <h2>Painel do Administrador</h2>
+                <button class="close-modal-btn" onclick="closeAdmLogin()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="adm-login-body">
+                <p>Digite a senha para acessar o painel</p>
+                <input type="password" id="admPassword" placeholder="Senha" onkeypress="if(event.key==='Enter') authenticateAdm()">
+                <button class="adm-login-submit" onclick="authenticateAdm()">
+                    <i class="fas fa-key"></i> Entrar
+                </button>
+                <p id="admErrorMsg" style="color: red; margin-top: 10px; display: none;"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAINEL DE ADMINISTRAÇÃO -->
+    <div class="adm-panel-modal" id="admPanelModal">
+        <div class="adm-panel-container">
+            <div class="adm-panel-header">
+                <h2><i class="fas fa-cog"></i> Painel de Administração</h2>
+                <button class="close-modal-btn" onclick="closeAdmPanel()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="adm-panel-tabs">
+                <button class="adm-tab-btn active" onclick="switchAdmTab('produtos')">
+                    <i class="fas fa-list"></i> Gerenciar Produtos
+                </button>
+                <button class="adm-tab-btn" onclick="switchAdmTab('adicionar')">
+                    <i class="fas fa-plus-circle"></i> Adicionar Produto
+                </button>
+                <button class="adm-tab-btn" onclick="switchAdmTab('precos')">
+                    <i class="fas fa-tag"></i> Alterar Preços
+                </button>
+                <button class="adm-tab-btn" onclick="switchAdmTab('sair')">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </button>
+            </div>
+
+            <!-- ABA: GERENCIAR PRODUTOS -->
+            <div class="adm-tab-content active" id="produtosTab">
+                <h3>Gerenciar Produtos</h3>
+                <div class="adm-search-bar">
+                    <input type="text" id="admSearchProduto" placeholder="Pesquise um produto..." onkeyup="filtrarProdutosAdm()">
+                    <select id="admFilterMarca">
+                        <option value="">Todos os Fornecedores</option>
+                        <option value="APPLE">Apple</option>
+                        <option value="SAMSUNG">Samsung</option>
+                        <option value="XIAOMI">Xiaomi</option>
+                        <option value="MOTOROLA">Motorola</option>
+                        <option value="LG">LG</option>
+                        <option value="INFINIX">Infinix</option>
+                        <option value="REALME">Realme</option>
+                    </select>
+                </div>
+                <div class="adm-produtos-list" id="admProdutosList">
+                    <!-- Produtos serão carregados aqui -->
+                </div>
+            </div>
+
+            <!-- ABA: ADICIONAR PRODUTO -->
+            <div class="adm-tab-content" id="adicionarTab">
+                <h3>Adicionar Novo Produto</h3>
+                <form class="adm-form" onsubmit="adicionarProdutoAdm(event)">
+                    <div class="form-group">
+                        <label>Marca:</label>
+                        <select id="novaMarca" required>
+                            <option value="">Selecione a marca</option>
+                            <option value="APPLE">Apple</option>
+                            <option value="SAMSUNG">Samsung</option>
+                            <option value="XIAOMI">Xiaomi</option>
+                            <option value="MOTOROLA">Motorola</option>
+                            <option value="LG">LG</option>
+                            <option value="INFINIX">Infinix</option>
+                            <option value="REALME">Realme</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nome do Produto:</label>
+                        <input type="text" id="novoNome" placeholder="Ex: IPHONE 15 OLED" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Categoria:</label>
+                        <input type="text" id="novaCategoria" placeholder="Ex: iPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Preço (R$):</label>
+                        <input type="number" id="novoPreco" placeholder="Ex: 500.00" step="0.01" min="0" required>
+                    </div>
+                    <button type="submit" class="adm-btn-submit">
+                        <i class="fas fa-save"></i> Adicionar Produto
+                    </button>
+                </form>
+            </div>
+
+            <!-- ABA: ALTERAR PREÇOS -->
+            <div class="adm-tab-content" id="precosTab">
+                <h3>Alterar Preços</h3>
+                <div class="adm-search-bar">
+                    <input type="text" id="admSearchPreco" placeholder="Pesquise um produto..." onkeyup="filtrarProdutosPreco()">
+                </div>
+                <div class="adm-precos-list" id="admPrecosList">
+                    <!-- Produtos para alteração de preço serão carregados aqui -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OVERLAY DOS MODALS -->
+    <div class="overlay" id="admOverlay" onclick="closeAdmLogin(); closeAdmPanel();"></div>
 
     <!-- OVERLAY -->
     <div class="overlay" id="overlay" onclick="toggleCart()"></div>
