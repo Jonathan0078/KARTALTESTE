@@ -12,7 +12,7 @@
     <header class="header">
         <div class="container header-content">
             <div class="logo-section">
-                <img src="LOGO.png" alt="KARTAL DISTRIBUIDORA" class="logo">
+                <img src="logos/kartal logo.png" alt="KARTAL DISTRIBUIDORA" class="logo">
                 <div class="header-text">
                     <h1>KARTAL DISTRIBUIDORA</h1>
                     <p>O maior estoque e variedade de displays do Vale do Taquari</p>
@@ -60,7 +60,7 @@
         </div>
     </header>
     <!-- ABAS PRINCIPAIS -->
-    <section class="tabs-section">
+    <section class="tabs-section" id="filtrosDisplays">
         <div class="container">
             <div class="tabs-container">
                 <button class="tab-btn active" onclick="switchTab('displays')">
@@ -86,7 +86,7 @@
     <!-- GRID DE CATEGORIAS DE ACESSÓRIOS -->
     <section class="acessorios-showcase" id="acessoriosShowcase" style="display: none;">
         <div class="container">
-            <h2>Categorias de Acessórios</h2>
+            <h2 id="acessoriosTitle">Categorias de Acessórios</h2>
             <div class="acessorios-grid" id="acessoriosGrid">
                 <!-- Categorias de acessórios serão carregadas aqui -->
             </div>
@@ -179,6 +179,17 @@
             <!-- ABA: GERENCIAR PRODUTOS -->
             <div class="adm-tab-content active" id="produtosTab">
                 <h3>Gerenciar Produtos</h3>
+                
+                <!-- Filtros por tipo de produto -->
+                <div class="adm-tipo-filtro">
+                    <button class="adm-tipo-btn active" onclick="filtrarPorTipoProduto('displays')">
+                        <i class="fas fa-mobile-alt"></i> DISPLAYS
+                    </button>
+                    <button class="adm-tipo-btn" onclick="filtrarPorTipoProduto('acessorios')">
+                        <i class="fas fa-box"></i> ACESSÓRIOS
+                    </button>
+                </div>
+                
                 <div class="adm-search-bar">
                     <input type="text" id="admSearchProduto" placeholder="Pesquise um produto..." onkeyup="filtrarProdutosAdm()">
                     <select id="admFilterMarca">
@@ -202,8 +213,16 @@
                 <h3>Adicionar Novo Produto</h3>
                 <form class="adm-form" onsubmit="adicionarProdutoAdm(event)">
                     <div class="form-group">
+                        <label>Tipo de Produto:</label>
+                        <select id="novoTipoProduto" onchange="atualizarCategorias()" required>
+                            <option value="">Selecione o tipo</option>
+                            <option value="display">Display</option>
+                            <option value="acessorio">Acessório</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="grupoMarca" style="display: none;">
                         <label>Marca:</label>
-                        <select id="novaMarca" required>
+                        <select id="novaMarca">
                             <option value="">Selecione a marca</option>
                             <option value="APPLE">Apple</option>
                             <option value="SAMSUNG">Samsung</option>
@@ -220,7 +239,9 @@
                     </div>
                     <div class="form-group">
                         <label>Categoria:</label>
-                        <input type="text" id="novaCategoria" placeholder="Ex: iPhone" required>
+                        <select id="novaCategoria" required>
+                            <option value="">Selecione a categoria</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Preço (R$):</label>
@@ -237,6 +258,16 @@
                 <h3>Alterar Preços</h3>
                 <div class="adm-search-bar">
                     <input type="text" id="admSearchPreco" placeholder="Pesquise um produto..." onkeyup="filtrarProdutosPreco()">
+                    <select id="admFilterMarcaPreco" onchange="filtrarProdutosPreco()">
+                        <option value="">Todos os Fornecedores</option>
+                        <option value="APPLE">Apple</option>
+                        <option value="SAMSUNG">Samsung</option>
+                        <option value="XIAOMI">Xiaomi</option>
+                        <option value="MOTOROLA">Motorola</option>
+                        <option value="LG">LG</option>
+                        <option value="INFINIX">Infinix</option>
+                        <option value="REALME">Realme</option>
+                    </select>
                 </div>
                 <div class="adm-precos-list" id="admPrecosList">
                     <!-- Produtos para alteração de preço serão carregados aqui -->

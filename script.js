@@ -140,13 +140,13 @@ let acessorios = [
 
 // Logos das marcas
 const logosMarcas = {
-    'APPLE': 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/814px-Apple_logo_black.svg.png',
-    'SAMSUNG': 'https://www.samsung.com/etc/designs/samsung/logo.png',
-    'XIAOMI': 'https://www.mi.com/favicon.ico',
-    'MOTOROLA': 'https://www.motorola.com/favicon.ico',
-    'LG': 'https://www.lg.com/favicon.ico',
-    'INFINIX': 'https://www.infinixmobility.com/favicon.ico',
-    'REALME': 'https://www.realme.com/favicon.ico'
+    'APPLE': 'logos/apple logo.png',
+    'SAMSUNG': 'logos/logo samsung.png',
+    'XIAOMI': 'logos/xiaomi logo.png',
+    'MOTOROLA': 'logos/motorola logo.png',
+    'LG': 'logos/lg logo.png',
+    'INFINIX': 'logos/infinix-logo.png',
+    'REALME': 'logos/realme logo.png'
 };
 
 // Carrinho
@@ -419,14 +419,14 @@ function switchTab(tab) {
     const produtosSection = document.getElementById('produtosSection');
 
     if (tab === 'displays') {
-        filtrosDisplays.style.display = 'block';
+        if (filtrosDisplays) filtrosDisplays.style.display = 'block';
         acessoriosShowcase.style.display = 'none';
         produtosSection.style.display = 'block';
         renderizarProdutos();
     } else if (tab === 'acessorios') {
-        filtrosDisplays.style.display = 'none';
+        if (filtrosDisplays) filtrosDisplays.style.display = 'none';
         acessoriosShowcase.style.display = 'block';
-        produtosSection.style.display = 'block';
+        produtosSection.style.display = 'none';
         renderizarAcessorios();
     }
 }
@@ -458,7 +458,7 @@ function renderizarAcessorios() {
 
 // Função para filtrar acessórios por categoria
 function filtrarAcessorioPorCategoria(categoriaId) {
-    const grid = document.getElementById('produtosGrid');
+    const grid = document.getElementById('acessoriosGrid');
     const acessoriosFiltrados = acessorios.filter(a => a.categoria_acessorio === categoriaId);
     
     // Encontrar a categoria para obter informações
@@ -466,10 +466,30 @@ function filtrarAcessorioPorCategoria(categoriaId) {
     
     grid.innerHTML = '';
     
+    // Criar botão voltar
+    const voltarBtn = document.createElement('button');
+    voltarBtn.className = 'voltar-btn';
+    voltarBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Voltar às Categorias';
+    voltarBtn.onclick = function() {
+        renderizarAcessorios();
+        document.getElementById('acessoriosTitle').textContent = 'Categorias de Acessórios';
+    };
+    
+    // Atualizar título
+    document.getElementById('acessoriosTitle').textContent = `${categoria.nome} - ${acessoriosFiltrados.length} produto(s)`;
+    
     if (acessoriosFiltrados.length === 0) {
         grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">Nenhum produto encontrado nesta categoria</p>';
+        grid.appendChild(voltarBtn);
         return;
     }
+
+    // Adicionar botão voltar no topo
+    const containerVoltar = document.createElement('div');
+    containerVoltar.style.gridColumn = '1/-1';
+    containerVoltar.style.marginBottom = '20px';
+    containerVoltar.appendChild(voltarBtn);
+    grid.appendChild(containerVoltar);
 
     acessoriosFiltrados.forEach(produto => {
         const card = document.createElement('div');
@@ -665,18 +685,53 @@ function switchAdmTab(tabName) {
 }
 
 // Renderizar produtos para o ADM
+// Variável global para controlar o tipo de produto em visualização no ADM
+let tipoAtualAdm = 'displays';
+
 function renderizarProdutosAdm() {
     const lista = document.getElementById('admProdutosList');
     lista.innerHTML = '';
 
-    produtos.forEach(produto => {
+    let produtosParaMostrar = [];
+    
+    if (tipoAtualAdm === 'displays') {
+        produtosParaMostrar = produtos;
+    } else if (tipoAtualAdm === 'acessorios') {
+        produtosParaMostrar = acessorios;
+    }
+
+    if (produtosParaMostrar.length === 0) {
+        lista.innerHTML = '<p style="text-align: center; padding: 40px; color: #999;">Nenhum produto encontrado</p>';
+        return;
+    }
+
+    produtosParaMostrar.forEach(produto => {
         const item = document.createElement('div');
         item.className = 'adm-produto-item';
-        item.innerHTML = `
+        
+        // Adicionar atributo de marca ou categoria para filtro
+        if (tipoAtualAdm === 'displays') {
+            item.setAttribute('data-marca', produto.marca);
+        }
+        
+        let produtoInfo = `
             <div class="adm-produto-info">
                 <h4>${produto.nome}</h4>
+        `;
+        
+        if (tipoAtualAdm === 'displays') {
+            produtoInfo += `
                 <p><strong>Marca:</strong> ${produto.marca}</p>
                 <p><strong>Categoria:</strong> ${produto.categoria}</p>
+            `;
+        } else {
+            const categoria = acessoriosCategories.find(c => c.id === produto.categoria_acessorio);
+            produtoInfo += `
+                <p><strong>Categoria:</strong> ${categoria ? categoria.nome : 'Indefinida'}</p>
+            `;
+        }
+        
+        produtoInfo += `
                 <p><strong>Preço:</strong> R$ ${produto.preco.toFixed(2)}</p>
             </div>
             <div class="adm-produto-actions">
@@ -688,8 +743,22 @@ function renderizarProdutosAdm() {
                 </button>
             </div>
         `;
+        
+        item.innerHTML = produtoInfo;
         lista.appendChild(item);
     });
+}
+
+// Filtrar por tipo de produto (Displays ou Acessórios)
+function filtrarPorTipoProduto(tipo) {
+    tipoAtualAdm = tipo;
+    
+    // Atualizar botões ativos
+    document.querySelectorAll('.adm-tipo-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.closest('.adm-tipo-btn').classList.add('active');
+    
+    // Renderizar produtos do tipo selecionado
+    renderizarProdutosAdm();
 }
 
 // Filtrar produtos no ADM
@@ -699,19 +768,29 @@ function filtrarProdutosAdm() {
 
     document.querySelectorAll('.adm-produto-item').forEach(item => {
         const texto = item.textContent.toLowerCase();
-        const itemMarca = item.textContent.includes(marca) || marca === '';
+        const itemMarca = item.getAttribute('data-marca');
         
-        if (texto.includes(search) && itemMarca) {
-            item.style.display = '';
-        } else {
-            item.style.display = 'none';
+        let mostrar = texto.includes(search);
+        
+        if (tipoAtualAdm === 'displays' && marca !== '') {
+            // Verificar se a marca corresponde exatamente
+            mostrar = mostrar && itemMarca === marca;
         }
+        
+        item.style.display = mostrar ? '' : 'none';
     });
 }
 
 // Editar produto
 function editarProdutoAdm(produtoId) {
-    const produto = produtos.find(p => p.id === produtoId);
+    let produto = null;
+    
+    if (tipoAtualAdm === 'displays') {
+        produto = produtos.find(p => p.id === produtoId);
+    } else {
+        produto = acessorios.find(p => p.id === produtoId);
+    }
+    
     if (!produto) return;
 
     const novoPreco = prompt(`Editar Preço de "${produto.nome}"\n\nPreço atual: R$ ${produto.preco.toFixed(2)}\nDigite o novo preço:`, produto.preco);
@@ -730,51 +809,117 @@ function editarProdutoAdm(produtoId) {
 
 // Deletar produto
 function deletarProdutoAdm(produtoId) {
-    const produto = produtos.find(p => p.id === produtoId);
+    let produto = null;
+    let index = -1;
+    
+    if (tipoAtualAdm === 'displays') {
+        index = produtos.findIndex(p => p.id === produtoId);
+        produto = produtos[index] || null;
+    } else {
+        index = acessorios.findIndex(p => p.id === produtoId);
+        produto = acessorios[index] || null;
+    }
+    
     if (!produto) return;
 
     if (confirm(`Tem certeza que deseja deletar "${produto.nome}"?\n\nEsta ação não pode ser desfeita!`)) {
-        const index = produtos.findIndex(p => p.id === produtoId);
-        produtos.splice(index, 1);
+        if (tipoAtualAdm === 'displays') {
+            produtos.splice(index, 1);
+        } else {
+            acessorios.splice(index, 1);
+        }
+        
         renderizarProdutosAdm();
         mostrarNotificacao(`Produto "${produto.nome}" deletado com sucesso!`);
     }
 }
 
 // Adicionar novo produto
+// Atualizar categorias baseado no tipo de produto selecionado
+function atualizarCategorias() {
+    const tipo = document.getElementById('novoTipoProduto').value;
+    const selectCategoria = document.getElementById('novaCategoria');
+    const grupoMarca = document.getElementById('grupoMarca');
+    
+    selectCategoria.innerHTML = '<option value="">Selecione a categoria</option>';
+    
+    if (tipo === 'display') {
+        grupoMarca.style.display = 'none';
+        document.getElementById('novaMarca').required = false;
+        
+        // Marcas disponíveis na página
+        const marcas = ['APPLE', 'SAMSUNG', 'XIAOMI', 'MOTOROLA', 'LG', 'INFINIX', 'REALME'];
+        
+        marcas.forEach(marca => {
+            const option = document.createElement('option');
+            option.value = marca;
+            option.textContent = marca;
+            selectCategoria.appendChild(option);
+        });
+    } else if (tipo === 'acessorio') {
+        grupoMarca.style.display = 'none';
+        document.getElementById('novaMarca').required = false;
+        
+        // Categorias de acessórios
+        acessoriosCategories.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat.id;
+            option.textContent = cat.nome;
+            selectCategoria.appendChild(option);
+        });
+    }
+}
+
 function adicionarProdutoAdm(event) {
     event.preventDefault();
 
-    const marca = document.getElementById('novaMarca').value;
+    const tipo = document.getElementById('novoTipoProduto').value;
     const nome = document.getElementById('novoNome').value;
     const categoria = document.getElementById('novaCategoria').value;
     const preco = parseFloat(document.getElementById('novoPreco').value);
 
-    if (!marca || !nome || !categoria || isNaN(preco) || preco < 0) {
-        alert('Por favor, preenchaa todos os campos com valores válidos!');
+    if (!tipo || !nome || !categoria || isNaN(preco) || preco < 0) {
+        alert('Por favor, preencha todos os campos com valores válidos!');
         return;
     }
 
-    const novoId = Math.max(...produtos.map(p => p.id), 0) + 1;
+    if (tipo === 'display') {
+        // Para displays, a categoria selecionada é na verdade a marca
+        const novoId = Math.max(...produtos.map(p => p.id), 0) + 1;
 
-    const novoProduto = {
-        id: novoId,
-        marca: marca,
-        nome: nome,
-        preco: preco,
-        categoria: categoria
-    };
+        const novoProduto = {
+            id: novoId,
+            marca: categoria,  // A marca é o que foi selecionado em "categoria"
+            nome: nome,
+            preco: preco,
+            categoria: 'Display'  // Todos os displays têm categoria "Display"
+        };
 
-    produtos.push(novoProduto);
+        produtos.push(novoProduto);
+        mostrarNotificacao(`Display "${nome}" adicionado com sucesso!`);
+    } else if (tipo === 'acessorio') {
+        const novoId = Math.max(...acessorios.map(p => p.id), 0) + 1;
+
+        const novoProduto = {
+            id: novoId,
+            nome: nome,
+            preco: preco,
+            categoria_acessorio: categoria
+        };
+
+        acessorios.push(novoProduto);
+        mostrarNotificacao(`Acessório "${nome}" adicionado com sucesso!`);
+    }
 
     // Limpar formulário
+    document.getElementById('novoTipoProduto').value = '';
     document.getElementById('novaMarca').value = '';
     document.getElementById('novoNome').value = '';
     document.getElementById('novaCategoria').value = '';
     document.getElementById('novoPreco').value = '';
+    document.getElementById('grupoMarca').style.display = 'none';
 
-    mostrarNotificacao(`Produto "${nome}" adicionado com sucesso!`);
-    renderizarProdutos();
+    renderizarProdutosAdm();
 }
 
 // Renderizar preços para edição
@@ -785,6 +930,7 @@ function renderizarPrecosAdm() {
     produtos.forEach(produto => {
         const item = document.createElement('div');
         item.className = 'adm-preco-item';
+        item.setAttribute('data-marca', produto.marca);
         item.innerHTML = `
             <div class="adm-preco-info">
                 <h4>${produto.nome}</h4>
@@ -804,15 +950,19 @@ function renderizarPrecosAdm() {
 // Filtrar produtos na aba de preços
 function filtrarProdutosPreco() {
     const search = document.getElementById('admSearchPreco').value.toLowerCase();
+    const marca = document.getElementById('admFilterMarcaPreco').value;
 
     document.querySelectorAll('.adm-preco-item').forEach(item => {
         const texto = item.textContent.toLowerCase();
+        const itemMarca = item.getAttribute('data-marca');
         
-        if (texto.includes(search)) {
-            item.style.display = '';
-        } else {
-            item.style.display = 'none';
+        let mostrar = texto.includes(search);
+        
+        if (marca !== '') {
+            mostrar = mostrar && itemMarca === marca;
         }
+        
+        item.style.display = mostrar ? '' : 'none';
     });
 }
 
