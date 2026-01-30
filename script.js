@@ -417,16 +417,19 @@ function switchTab(tab) {
     const filtrosDisplays = document.getElementById('filtrosDisplays');
     const acessoriosShowcase = document.getElementById('acessoriosShowcase');
     const produtosSection = document.getElementById('produtosSection');
+    const valoresSection = document.querySelector('.valores-header');
 
     if (tab === 'displays') {
         if (filtrosDisplays) filtrosDisplays.style.display = 'block';
         acessoriosShowcase.style.display = 'none';
         produtosSection.style.display = 'block';
+        if (valoresSection) valoresSection.style.display = 'block';
         renderizarProdutos();
     } else if (tab === 'acessorios') {
         if (filtrosDisplays) filtrosDisplays.style.display = 'none';
         acessoriosShowcase.style.display = 'block';
         produtosSection.style.display = 'none';
+        if (valoresSection) valoresSection.style.display = 'none';
         renderizarAcessorios();
     }
 }
